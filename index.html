@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FF Duo | 200 Days Memory Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style>
+        :root { --ff-gold: #ffd700; --ff-red: #ff4d4d; --ff-neon: #39ff14; --bg-dark: #050505; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg-dark); color: white; font-family: 'Orbitron', sans-serif; overflow-x: hidden; }
+
+        /* Animated Background Particles */
+        #bg-canvas { position: fixed; top:0; left:0; z-index: -1; width: 100vw; height: 100vh; }
+
+        .page { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .page.active { display: flex; animation: pageIn 0.5s ease-out; }
+        @keyframes pageIn { from { opacity: 0; transform: scale(1.1); filter: blur(5px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+
+        .card { background: rgba(10, 10, 10, 0.9); border: 1px solid var(--ff-gold); padding: 20px; max-width: 450px; width: 100%; box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); position: relative; }
+        .btn-next { margin-top: 15px; background: var(--ff-gold); color: black; border: none; padding: 10px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+        /* Memory Grid Page 6 */
+        .memory-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .memory-fragment { background: #1a1a1a; border: 1px solid #333; padding: 15px; font-size: 0.7rem; cursor: pointer; transition: 0.3s; }
+        .memory-fragment:hover { border-color: var(--ff-neon); color: var(--ff-neon); }
+
+        /* Achievements Page 11 */
+        .achievement { display: flex; align-items: center; background: rgba(255, 215, 0, 0.05); margin: 8px 0; padding: 10px; border-left: 3px solid var(--ff-gold); text-align: left; }
+        .ach-icon { font-size: 1.5rem; margin-right: 15px; }
+        .ach-title { font-size: 0.8rem; font-weight: bold; color: var(--ff-gold); }
+        .ach-desc { font-size: 0.65rem; color: #aaa; }
+
+        /* Typography */
+        .big-number { font-size: 5rem; color: var(--ff-neon); text-shadow: 0 0 15px var(--ff-neon); }
+        .log-text { font-size: 0.8rem; line-height: 1.6; color: #ddd; text-align: left; border-left: 2px solid var(--ff-neon); padding-left: 10px; margin: 10px 0; }
+        
+        /* Game Styles */
+        #game-canvas { width: 300px; height: 300px; background: #000; border: 1px solid var(--ff-red); position: relative; margin: 10px auto; }
+        .target { width: 30px; height: 30px; background: var(--ff-red); border-radius: 50%; position: absolute; box-shadow: 0 0 10px var(--ff-red); }
+
+        @keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+    /* ... your other CSS styles ... */
+
+    /* YOUR EXISTING KEYFRAME */
+    @keyframes pageIn { 
+        from { opacity: 0; transform: scale(1.1); filter: blur(5px); } 
+        to { opacity: 1; transform: scale(1); filter: blur(0); } 
+    }
+
+    /* ADD THIS ONE BELOW IT - DO NOT DELETE THE TOP ONE */
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+        70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(255, 77, 77, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
+    }
+</style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+
+    <div class="page active" id="page0">
+    <div style="letter-spacing: 5px; font-size: 0.7rem; color: var(--ff-gold);">RESTRICTED ACCESS</div>
+    <h2 style="margin: 10px 0;">VAULT UNLOCKS IN:</h2>
+    <div id="timer-display" style="font-family: 'Courier Prime', monospace; font-size: 1.5rem; color: var(--ff-neon); border: 1px solid var(--ff-neon); padding: 20px; background: rgba(0,255,0,0.05);">
+        00d 00h 00m 00s
+    </div>
+    <p id="timer-status" style="font-size: 0.6rem; margin-top: 15px; color: #666;">TARGET DATE: 23-04-2026</p>
+    <button id="enter-vault-btn" class="btn-next" style="display:none;" onclick="nextPage(1)">ACCESS GRANTED: ENTER</button>
+</div>
+
+    <div class="page active" id="page1">
+        <div style="letter-spacing: 5px; font-size: 0.7rem;">LOADING DUO_DATA...</div>
+        <div class="big-number" id="countdown">000</div>
+        <p>DAYS OF ADVENTURE</p>
+        <button class="btn-next" onclick="nextPage(2)">SYNC DATA</button>
+    </div>
+
+    <div class="page" id="page2">
+        <div class="card">
+            <div style="text-align: left; font-size: 0.6rem; color: var(--ff-gold);">[ENCRYPTED_MESSAGE]</div>
+            <div id="chat-text" style="font-family: 'Courier Prime', monospace; color: var(--ff-neon); text-align: left; min-height: 100px; margin-top: 10px;"></div>
+            <button class="btn-next" id="btn2" style="display:none;" onclick="nextPage(3)">NEXT</button>
+        </div>
+    </div>
+
+    <div class="page" id="page3">
+        <h3>SYNERGY TEST</h3>
+        <p style="font-size: 0.7rem;">TAP TARGETS TO LOAD MEMORIES</p>
+        <div id="game-canvas"></div>
+        <div id="score-text">LOAD: 0%</div>
+        <button class="btn-next" id="btn3" style="display:none;" onclick="nextPage(4)">SYNC COMPLETE</button>
+    </div>
+
+    <div class="page" id="page4">
+        <div class="card">
+            <h3>DUO CARD</h3>
+            <div style="border: 1px solid var(--ff-gold); padding: 15px; text-align: left; font-size: 0.8rem;">
+                <p>NAME: <span style="color:var(--ff-neon)">ZEN REAPER</span></p>
+                <p>BOND: <span style="color:var(--ff-neon)">𝗨𝗡𝗕𝗥𝗘𝗔𝗞𝗔𝗕𝗟𝗘</span></p>
+                <p> DUO TYPE: <span style="color:var(--ff-neon)">Supportive </span></p>
+                <p>SYNERGY: 200/200</p>
+            </div>
+            <button class="btn-next" onclick="nextPage(5)">VIEW LOGS</button>
+        </div>
+    </div>
+
+    <div class="page" id="page5">
+        <div class="card">
+            <h3>LOG: THE BEGINNING</h3>
+            <div class="log-text">It started with a single invite. Neither of us knew that we’d still be playing together 200 days later. You became the one friend I didn't thought I could have.</div>
+            <button class="btn-next" onclick="nextPage(6)">UNLOCk MEMORY GRID</button>
+        </div>
+    </div>
+
+    <div class="page" id="page6">
+        <div class="card">
+            <h3>MEMORY FRAGMENTS</h3>
+            <p style="font-size: 0.6rem;">CLICK TO DECRYPT</p>
+            <div class="memory-grid">
+                <div class="memory-fragment" onclick="this.innerText='That 2v4 clutch in most of the time!'">FRAGMENT_01</div>
+                <div class="memory-fragment" onclick="this.innerText='Laughing when we died to the zone.'">FRAGMENT_02</div>
+                <div class="memory-fragment" onclick="this.innerText='The time we found the perfect loot.'">FRAGMENT_03</div>
+                <div class="memory-fragment" onclick="this.innerText='Every night we became more close/comfortable friends.'">FRAGMENT_04</div>
+            </div>
+            <button class="btn-next" onclick="nextPage(7)">CONTINUE LOGS</button>
+        </div>
+    </div>
+
+    <div class="page" id="page7">
+        <div class="card">
+            <h3>EYEZEN: THE BOND</h3>
+            <div class="log-text">Even without a on constant voice note or mic or a picture(i don't have hehe), our co-ordiantion speaks for itself. I know exactly when you're going to rush and when you need cover. That’s real chemistry.</div>
+            <button class="btn-next" onclick="nextPage(8)">NEXT</button>
+        </div>
+    </div>
+
+    <div class="page" id="page8">
+        <div class="card">
+            <h3>EYEZEN: PRIVACY</h3>
+            <div class="log-text">I appreciate that you feel safe with me. No pressure, ever. What makes our duo special is how it’s built on little things—me annoying you, you getting upset, and me trying to make you smile again. But more than anything, it’s you choosing to stay instead of walking away. That’s what really made our friendship strong. I'm happy with just this.</div>
+            <button class="btn-next" onclick="nextPage(9)">NEXT</button>
+        </div>
+    </div>
+
+    <div class="page" id="page9">
+    <div class="card">
+        <h3>EYEZEN: FUTURE</h3>
+        <div class="log-text">Today is Day 200. I hope on Day 400.....even more, we’re still here, taking out tea, eachother problems and having the best time. Thanks for being my duo.</div>
+        <button class="btn-next" onclick="nextPage('9_revive')">FINISH MISSION</button>
+    </div>
+</div>
+
+<div class="page" id="page9">
+    <div class="card">
+        <h3>LOG: FUTURE</h3>
+        <div class="log-text">Today is Day 200. I hope on Day 400, we still ke the number increasing...</div>
+        <button class="btn-next" onclick="nextPage('9_revive')">FINISH MISSION</button>
+    </div>
+</div>
+
+<div class="page" id="page9_revive">
+    <div class="card" style="border-color: var(--ff-red);">
+        <h3 style="color: var(--ff-red);">DOWN BUT NOT OUT!</h3>
+        <div id="revive-zone" style="margin: 20px 0; height: 100px; display: flex; justify-content: center; align-items: center;">
+            <button id="revive-btn" style="background: var(--ff-red); border: none; border-radius: 50%; width: 70px; height: 70px; color: white; font-weight: bold; cursor: pointer; animation: pulse 1s infinite;" onclick="startReviveSequence()">
+                REVIVE
+            </button>
+        </div>
+        <div id="revive-messages" style="font-family: 'Courier Prime', monospace; color: var(--ff-neon); min-height: 50px;">
+            > WAITING FOR TEAMMATE...
+        </div>
+        <button class="btn-next" id="revive-finish" style="display:none;" onclick="nextPage(10)">BOOYAH!</button>
+    </div>
+</div>
+
+    <div class="page" id="page10">
+        <h1 style="color: var(--ff-gold); font-size: 3.5rem; margin:0;">BOOYAH!</h1>
+        <p>MISSION ACCOMPLISHED</p>
+        <button class="btn-next" onclick="nextPage(11)">VIEW ACHIEVEMENTS</button>
+    </div>
+
+    <div class="page" id="page11">
+        <div class="card" style="max-height: 80vh; overflow-y: auto;">
+            <h3>ACHIEVEMENTS</h3>
+            <div class="achievement">
+                <div class="ach-icon">🔥</div>
+                <div><div class="ach-title">Unstoppable Duo</div><div class="ach-desc">Surviving 200 days together.</div></div>
+            </div>
+            <div class="achievement">
+                <div class="ach-icon">🛡️</div>
+                <div><div class="ach-title">Trust Factor</div><div class="ach-desc">I'll leave this one to u (tell me the answer though)</div></div>
+            </div>
+            <div class="achievement">
+                <div class="ach-icon">🎯</div>
+                <div><div class="ach-title">Perfect Synergy</div><div class="ach-desc">Reading each other's movement instantly.</div></div>
+            </div>
+            <button class="btn-next" onclick="nextPage(12)">CLAIM REWARD</button>
+        </div>
+    </div>
+
+    <div class="page" id="page12">
+        <div class="card" style="border: 5px double var(--ff-gold);">
+            <h2>GOLDEN VOW</h2>
+            <p>This certifies a bond of</p>
+            <h1 style="color: var(--ff-neon);">200 DAYS</h1>
+            <p>Between Two Best Friends</p>
+            <p style="font-size: 0.6rem; color: #555;">UID: 12491325055</p>
+        </div>
+        <button class="btn-next" onclick="nextPage(1)">REPLAY</button>
+    </div>
+
+    <script>
+
+        // Set the target date: April 23, 2026 00:00:00
+const targetDate = new Date("April 23, 2026 00:00:00").getTime();
+
+function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    // Time calculations for days, hours, minutes and seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    const display = document.getElementById("timer-display");
+    const enterBtn = document.getElementById("enter-vault-btn");
+    const statusText = document.getElementById("timer-status");
+
+    // Display the result
+    display.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+    // If the count down is finished, show the button
+    if (distance < 0) {
+        clearInterval(timerInterval);
+        display.innerHTML = "VAULT IS OPEN";
+        display.style.borderColor = "var(--ff-gold)";
+        display.style.color = "var(--ff-gold)";
+        statusText.innerText = "MISSION START AUTHORIZED";
+        enterBtn.style.display = "block";
+    }
+}
+
+// Start the timer
+const timerInterval = setInterval(updateCountdown, 1000);
+updateCountdown(); // Run once immediately
+
+// REPLACE your old nextPage function with this one
+function nextPage(n) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    
+    // This part is the fix: it now handles 'page9_revive' as well as numbers
+    const target = document.getElementById('page' + n);
+    if(target) {
+        target.classList.add('active');
+    }
+
+    if(n === 0) updateCountdown(); 
+    if(n === 1) startCount();
+    if(n === 2) startChat();
+    if(n === 3) startGame();
+}
+
+// ADD this new function at the very bottom of your script
+function startReviveSequence() {
+    const btn = document.getElementById('revive-btn');
+    const msgBox = document.getElementById('revive-messages');
+    const finishBtn = document.getElementById('revive-finish');
+    
+    btn.style.display = 'none'; 
+    
+    const messages = [
+        "Connecting to teammate...",
+        "Initiating Revive Protocol...",
+        "Analyzing 200 days of data...",
+        "Don't give up on me now.",
+        "You're the best teammate I've ever had.",
+        "Almost there...",
+        "Standing back up...",
+        "Full health restored.",
+        "Let's get this Booyah!"
+    ];
+
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i < messages.length) {
+            msgBox.innerHTML = `> ${messages[i]}`;
+            i++;
+        } else {
+            clearInterval(interval);
+            msgBox.innerHTML = "> SYSTEM STABLE. MISSION READY.";
+            finishBtn.style.display = "inline-block";
+        }
+    }, 1200); 
+}
+
+        // Particle Background
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        let particles = [];
+        function createParticles() {
+            for(let i=0; i<30; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2, v: Math.random()*0.5});
+        }
+        function drawParticles() {
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.fillStyle = "#39ff14";
+            particles.forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+                p.y -= p.v; if(p.y < 0) p.y = canvas.height;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        createParticles(); drawParticles();
+
+        // Page 1 Counter
+        function startCount() {
+            let c=0; let i=setInterval(()=>{
+                c+=4; document.getElementById('countdown').innerText=c.toString().padStart(3,'0');
+                if(c>=200){ clearInterval(i); document.getElementById('countdown').innerText="200"; }
+            },30);
+        }
+        window.onload = startCount;
+
+        // Page 2 Chat
+        function startChat() {
+            const txt = "Hey... so 200 days, huh? \n\nI wanted to make something special because you've been the best duo I could ask for. \n\nNo Meet-up, No face calls, No calls, just vibes and trust. Lets gooo!";
+            let i=0; const box=document.getElementById('chat-text'); box.innerHTML="";
+            function type(){
+                if(i<txt.length){ box.innerHTML+=txt[i]==='\n'?'<br>':txt[i]; i++; setTimeout(type,40); }
+                else document.getElementById('btn2').style.display="block";
+            } type();
+        }
+
+        // Page 3 Game
+        let score=0;
+        function startGame() {
+            score=0; document.getElementById('game-canvas').innerHTML="";
+            spawn();
+        }
+        function spawn(){
+            if(score>=5){ document.getElementById('btn3').style.display="block"; return; }
+            const t=document.createElement('div'); t.className='target';
+            t.style.top=Math.random()*250+'px'; t.style.left=Math.random()*250+'px';
+            t.onclick=()=>{ score++; document.getElementById('score-text').innerText=`LOAD: ${score*20}%`; t.remove(); spawn(); };
+            document.getElementById('game-canvas').appendChild(t);
+
+            function startReviveSequence() {
+    const btn = document.getElementById('revive-btn');
+    const msgBox = document.getElementById('revive-messages');
+    const finishBtn = document.getElementById('revive-finish');
+    
+    btn.style.display = 'none'; // Hide button after click
+    
+    const messages = [
+        "Connecting to teammate...",
+        "Initiating Revive Protocol...",
+        "Don't give up on me now.",
+        "Remember that 1v3 you clutched?",
+        "Remember the nights we stayed up late?",
+        "You're the best teammate I've ever had.",
+        "200 days of loyalty right here.",
+        "Standing back up...",
+        "Full health restored. Let's win this."
+    ];
+
+    let i = 0;
+    const interval = setInterval(() => {
+        if (i < messages.length) {
+            msgBox.innerHTML = `> ${messages[i]}`;
+            i++;
+        } else {
+            clearInterval(interval);
+            msgBox.innerHTML = "> SYSTEM STABLE. BOOYAH READY.";
+            finishBtn.style.display = "inline-block";
+        }
+    }, 1200); // Change speed here (1200 = 1.2 seconds)
+}
+        }
+    </script>
+</body>
+</html>
